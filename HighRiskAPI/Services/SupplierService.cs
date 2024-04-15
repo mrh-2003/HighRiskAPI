@@ -17,9 +17,9 @@ namespace HighRiskAPI.Services
             return await _supplierRepository.GetAllSuppliersAsync();
         }
 
-        public async Task<Supplier> GetSupplierByIdAsync(long taxId)
+        public async Task<Supplier> GetSupplierByIdAsync(long id)
         {
-            return await _supplierRepository.GetSupplierByIdAsync(taxId);
+            return await _supplierRepository.GetSupplierByIdAsync(id);
         }
 
         public async Task AddSupplierAsync(Supplier supplier)
@@ -30,7 +30,7 @@ namespace HighRiskAPI.Services
 
         public async Task UpdateSupplierAsync(Supplier supplier)
         {
-            var existingSupplier = await _supplierRepository.GetSupplierByIdAsync(supplier.TaxId);
+            var existingSupplier = await _supplierRepository.GetSupplierByIdAsync(supplier.Id);
             if (existingSupplier == null)
             {
                 throw new Exception("Supplier not found.");
@@ -38,6 +38,7 @@ namespace HighRiskAPI.Services
 
             existingSupplier.BusinessName = supplier.BusinessName;
             existingSupplier.CommercialName = supplier.CommercialName;
+            existingSupplier.TaxId = supplier.TaxId;
             existingSupplier.PhoneNumber = supplier.PhoneNumber;
             existingSupplier.Email = supplier.Email;
             existingSupplier.Website = supplier.Website;
@@ -49,15 +50,15 @@ namespace HighRiskAPI.Services
             await _supplierRepository.UpdateSupplierAsync(existingSupplier);
         }
 
-        public async Task DeleteSupplierAsync(long taxId)
+        public async Task DeleteSupplierAsync(long id)
         {
-            var existingSupplier = await _supplierRepository.GetSupplierByIdAsync(taxId);
+            var existingSupplier = await _supplierRepository.GetSupplierByIdAsync(id);
             if (existingSupplier == null)
             {
                 throw new Exception("Supplier not found.");
             }
 
-            await _supplierRepository.DeleteSupplierAsync(taxId);
+            await _supplierRepository.DeleteSupplierAsync(id);
         }
     }
 }

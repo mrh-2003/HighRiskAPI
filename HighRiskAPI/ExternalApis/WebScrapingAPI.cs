@@ -1,7 +1,12 @@
-﻿using System;
+﻿using HighRiskAPI.Models;
+using NuGet.Protocol;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics.Metrics;
+using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -62,32 +67,40 @@ namespace HighRiskAPI.ExternalApis
             _initialized = true;
         }
 
-        public static async Task<string> SearchOfac(string name)
+        public static async Task<IEnumerable<JsonElement>> SearchOfac(string name)
         {
             await InitializeHttpClient();
             HttpResponseMessage response = await _httpClient.GetAsync($"search_ofac/{name}");
-            return await ProcessResponse(response);
+            var jsonDoc = await ProcessResponse(response);
+            var results = jsonDoc.RootElement.GetProperty("data").EnumerateArray();
+            return results;
         }
 
-        public static async Task<string> SearchOffshoreLeaks(string name)
+        public static async Task<IEnumerable<JsonElement>> SearchOffshoreLeaks(string name, string country)
         {
             await InitializeHttpClient();
             HttpResponseMessage response = await _httpClient.GetAsync($"search_offshore_leaks/{name}");
-            return await ProcessResponse(response);
+            var jsonDoc = await ProcessResponse(response);
+            var results = jsonDoc.RootElement.GetProperty("data").EnumerateArray().Where(x => x.GetProperty("Jurisdiction").GetString() == country);
+            return results;
         }
 
-        public static async Task<string> SearchTheWorldBank(string name)
+
+        public static async Task<IEnumerable<JsonElement>> SearchTheWorldBank(string name, string country)
         {
             await InitializeHttpClient();
             HttpResponseMessage response = await _httpClient.GetAsync($"search_the_world_bank/{name}");
-            return await ProcessResponse(response);
+            var jsonDoc = await ProcessResponse(response);
+            var results = jsonDoc.RootElement.GetProperty("data").EnumerateArray().Where(x => x.GetProperty("Country").GetString() == country);
+            return results;
         }
 
-        private static async Task<string> ProcessResponse(HttpResponseMessage response)
+        private static async Task<JsonDocument> ProcessResponse(HttpResponseMessage response)
         {
             if (response.IsSuccessStatusCode)
             {
-                return await response.Content.ReadAsStringAsync();
+                Stream stream = await response.Content.ReadAsStreamAsync();
+                return await JsonDocument.ParseAsync(stream);
             }
             else
             {

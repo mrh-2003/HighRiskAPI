@@ -15,12 +15,12 @@ namespace HighRiskAPI.Repositories
 
         public async Task<List<Supplier>> GetAllSuppliersAsync()
         {
-            return await _context.Suppliers.ToListAsync();
+            return await _context.Suppliers.OrderByDescending(s => s.LastEdition).ToListAsync();
         }
 
-        public async Task<Supplier> GetSupplierByIdAsync(long taxId)
+        public async Task<Supplier> GetSupplierByIdAsync(long id)
         {
-            return await _context.Suppliers.FirstOrDefaultAsync(s => s.TaxId == taxId);
+            return await _context.Suppliers.FirstOrDefaultAsync(s => s.Id == id);
         }
 
         public async Task AddSupplierAsync(Supplier supplier)
@@ -35,9 +35,9 @@ namespace HighRiskAPI.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteSupplierAsync(long taxId)
+        public async Task DeleteSupplierAsync(long id)
         {
-            var supplierToDelete = await _context.Suppliers.FirstOrDefaultAsync(s => s.TaxId == taxId);
+            var supplierToDelete = await _context.Suppliers.FirstOrDefaultAsync(s => s.Id == id);
             if (supplierToDelete != null)
             {
                 _context.Suppliers.Remove(supplierToDelete);

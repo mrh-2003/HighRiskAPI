@@ -21,7 +21,16 @@ builder.Services.AddHttpClient();
 builder.Services.AddScoped<SupplierRepository>();
 builder.Services.AddScoped<SupplierService>();
 builder.Services.AddControllers();
-
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:4200")
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        });
+});
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -66,8 +75,10 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
+app.UseCors();
+
 app.MapGroup("/identity").MapIdentityApi<IdentityUser>();
 
-//app.MapControllers().RequireAuthorization();
+app.MapControllers().RequireAuthorization();
 app.MapControllers();
 app.Run();

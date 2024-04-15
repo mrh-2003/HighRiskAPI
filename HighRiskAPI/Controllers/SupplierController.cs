@@ -3,6 +3,7 @@ using HighRiskAPI.Services;
 using HighRiskAPI.ExternalApis;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using System.Text.Json;
 
 namespace HighRiskAPI.Controllers
 {
@@ -20,23 +21,23 @@ namespace HighRiskAPI.Controllers
         // Métodos de búsqueda de la API externa
 
         [HttpGet("searchOfac/{name}")]
-        public async Task<ActionResult<string>> SearchOfac(string name)
+        public async Task<ActionResult<JsonDocument>> SearchOfac(string name)
         {
             var result = await WebScrapingAPI.SearchOfac(name);
             return Ok(result);
         }
 
-        [HttpGet("searchOffshoreLeaks/{name}")]
-        public async Task<ActionResult<string>> SearchOffshoreLeaks(string name)
+        [HttpGet("searchOffshoreLeaks/{name}/{country}")]
+        public async Task<ActionResult<JsonDocument>> SearchOffshoreLeaks(string name, string country)
         {
-            var result = await WebScrapingAPI.SearchOffshoreLeaks(name);
+            var result = await WebScrapingAPI.SearchOffshoreLeaks(name, country);
             return Ok(result);
         }
 
-        [HttpGet("searchTheWorldBank/{name}")]
-        public async Task<ActionResult<string>> SearchTheWorldBank(string name)
+        [HttpGet("searchTheWorldBank/{name}/{country}")]
+        public async Task<ActionResult<JsonDocument>> SearchTheWorldBank(string name, string country)
         {
-            var result = await WebScrapingAPI.SearchTheWorldBank(name);
+            var result = await WebScrapingAPI.SearchTheWorldBank(name, country);
             return Ok(result);
         }
 
@@ -51,10 +52,10 @@ namespace HighRiskAPI.Controllers
         }
 
         // Método GET para obtener un proveedor por su ID
-        [HttpGet("{taxId}")]
-        public async Task<ActionResult<Supplier>> GetSupplierById(long taxId)
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Supplier>> GetSupplierById(long id)
         {
-            var supplier = await _supplierService.GetSupplierByIdAsync(taxId);
+            var supplier = await _supplierService.GetSupplierByIdAsync(id);
             if (supplier == null)
             {
                 return NotFound();
@@ -69,14 +70,14 @@ namespace HighRiskAPI.Controllers
         public async Task<ActionResult<Supplier>> AddSupplier(Supplier supplier)
         {
             await _supplierService.AddSupplierAsync(supplier);
-            return CreatedAtAction(nameof(GetSupplierById), new { taxId = supplier.TaxId }, supplier);
+            return CreatedAtAction(nameof(GetSupplierById), new { Id = supplier.Id }, supplier);
         }
 
         // Método PUT para actualizar un proveedor
-        [HttpPut("{taxId}")]
-        public async Task<IActionResult> UpdateSupplier(long taxId, Supplier supplier)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateSupplier(long id, Supplier supplier)
         {
-            if (taxId != supplier.TaxId)
+            if (id != supplier.Id)
             {
                 return BadRequest();
             }
@@ -94,12 +95,12 @@ namespace HighRiskAPI.Controllers
         }
 
         // Método DELETE para eliminar un proveedor
-        [HttpDelete("{taxId}")]
-        public async Task<IActionResult> DeleteSupplier(long taxId)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteSupplier(long id)
         {
             try
             {
-                await _supplierService.DeleteSupplierAsync(taxId);
+                await _supplierService.DeleteSupplierAsync(id);
             }
             catch (Exception)
             {

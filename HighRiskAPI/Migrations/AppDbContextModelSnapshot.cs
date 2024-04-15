@@ -24,11 +24,11 @@ namespace HighRiskAPI.Migrations
 
             modelBuilder.Entity("HighRiskAPI.Models.Supplier", b =>
                 {
-                    b.Property<long>("TaxId")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("TaxId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<string>("Address")
                         .IsRequired()
@@ -61,11 +61,15 @@ namespace HighRiskAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("TaxId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Website")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("TaxId");
+                    b.HasKey("Id");
 
                     b.ToTable("Suppliers");
                 });
